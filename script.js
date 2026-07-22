@@ -99,6 +99,15 @@ async function handleSubmit(event) {
 // ==========================================
 
 /**
+ * Normaliza o nome para comparação (remove espaços extras e converte para minúsculo)
+ * @param {string} name - Nome a ser normalizado
+ * @returns {string} - Nome normalizado
+ */
+function normalizeName(name) {
+    return name.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+/**
  * Verifica se o aluno já registrou presença hoje
  * @param {string} name - Nome do aluno
  * @returns {Promise<boolean>} - true se já registrou, false caso contrário
@@ -106,8 +115,9 @@ async function handleSubmit(event) {
 async function checkAttendance(name) {
     try {
         const today = new Date().toISOString().split('T')[0];
+        const normalizedName = normalizeName(name);
         
-        const response = await fetch(`${APPS_SCRIPT_URL}?action=checkAttendance&name=${encodeURIComponent(name)}&date=${today}`, {
+        const response = await fetch(`${APPS_SCRIPT_URL}?action=checkAttendance&name=${encodeURIComponent(normalizedName)}&date=${today}`, {
             method: 'GET',
             mode: 'no-cors'
         });
@@ -231,7 +241,7 @@ function generateQRCode() {
             text: url,
             width: 300,
             height: 300,
-            colorDark: '#D4AF37',
+            colorDark: '#28a7468a',
             colorLight: '#000000',
             correctLevel: QRCode.CorrectLevel.H
         });

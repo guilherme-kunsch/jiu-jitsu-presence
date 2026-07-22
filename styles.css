@@ -10,9 +10,9 @@
     --color-medium-gray: #2d2d2d;
     --color-light-gray: #404040;
     --color-white: #ffffff;
-    --color-gold: #D4AF37;
-    --color-gold-light: #F4D03F;
-    --color-gold-dark: #B8960C;
+    --color-gold: #28a7468a;
+    --color-gold-light: #28a7468a;
+    --color-gold-dark: #28a7468a;
     --color-success: #28a745;
     --color-danger: #dc3545;
     --color-warning: #ffc107;
@@ -100,10 +100,11 @@ body {
 .logo-img {
     width: 120px;
     height: 120px;
-    object-fit: contain;
+    object-fit: cover;
     border-radius: 50%;
     border: 3px solid var(--color-gold);
     animation: pulse 2s infinite;
+    padding: 2px;
 }
 
 /* Títulos */

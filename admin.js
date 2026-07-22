@@ -234,8 +234,8 @@ function updateDailyChart() {
             datasets: [{
                 label: 'Presenças',
                 data: counts,
-                borderColor: '#D4AF37',
-                backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                borderColor: '#28a7468a',
+                backgroundColor: 'rgba(40, 167, 70, 0.1)',
                 fill: true,
                 tension: 0.4
             }]
@@ -302,11 +302,11 @@ function updateClassChart() {
             datasets: [{
                 data: data,
                 backgroundColor: [
-                    '#D4AF37',
-                    '#F4D03F',
-                    '#B8960C',
-                    '#FFD700',
-                    '#DAA520'
+                    '#28a7468a',
+                    '#28a7468a',
+                    '#28a7468a',
+                    '#28a7468a',
+                    '#28a7468a'
                 ]
             }]
         },

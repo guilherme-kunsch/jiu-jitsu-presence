@@ -106,6 +106,9 @@ function checkAttendance(params) {
             return createResponse({ success: false, message: 'Parâmetros inválidos' });
         }
         
+        // Normalizar o nome para comparação
+        const normalizedName = name.toString().trim().replace(/\s+/g, ' ').toLowerCase();
+        
         // Obter a planilha
         const sheet = getSheet();
         
@@ -118,8 +121,11 @@ function checkAttendance(params) {
             const rowName = row[2]; // Coluna Nome (índice 2)
             const rowDate = row[0]; // Coluna Data (índice 0)
             
-            // Comparar nome (case insensitive) e data
-            if (rowName && rowName.toString().toLowerCase() === name.toLowerCase() && 
+            // Normalizar o nome da linha para comparação
+            const normalizedRowName = rowName ? rowName.toString().trim().replace(/\s+/g, ' ').toLowerCase() : '';
+            
+            // Comparar nome normalizado e data
+            if (normalizedRowName === normalizedName && 
                 rowDate && rowDate.toString() === date) {
                 return createResponse({ success: true, exists: true });
             }
@@ -271,7 +277,7 @@ function getSheet() {
         
         // Formatar cabeçalho
         const headerRange = sheet.getRange(1, 1, 1, 8);
-        headerRange.setBackground('#D4AF37');
+        headerRange.setBackground('#28a7468a');
         headerRange.setFontColor('#000000');
         headerRange.setFontWeight('bold');
         
