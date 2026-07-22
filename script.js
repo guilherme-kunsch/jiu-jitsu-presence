@@ -218,6 +218,7 @@ function generateQRCode() {
     const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&color=D4AF37&bgcolor=000000`;
     
     const img = new Image();
+    img.crossOrigin = 'anonymous';
     img.src = apiUrl;
     img.alt = 'QR Code';
     img.style.maxWidth = '100%';
@@ -225,13 +226,8 @@ function generateQRCode() {
     img.onload = () => {
         qrCodeContainer.appendChild(img);
         
-        // Criar canvas para download
-        const canvas = document.createElement('canvas');
-        canvas.width = 300;
-        canvas.height = 300;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, 300, 300);
-        qrCodeCanvas = canvas;
+        // Armazenar a URL para download direto
+        qrCodeCanvas = img;
         
         downloadQrBtn.style.display = 'inline-block';
     };
@@ -251,10 +247,27 @@ function downloadQRCode() {
         return;
     }
     
-    const link = document.createElement('a');
-    link.download = 'qrcode-presenca.png';
-    link.href = qrCodeCanvas.toDataURL('image/png');
-    link.click();
+    // Usar a URL direta da API para download via fetch
+    const url = qrUrlInput.value.trim();
+    const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&color=D4AF37&bgcolor=000000`;
+    
+    fetch(apiUrl)
+        .then(response => response.blob())
+        .then(blob => {
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = 'qrcode-presenca.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+        })
+        .catch(error => {
+            console.error('Erro ao baixar QR Code:', error);
+            // Fallback: abrir em nova aba
+            window.open(apiUrl, '_blank');
+        });
 }
 
 // ==========================================
