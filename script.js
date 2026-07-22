@@ -221,25 +221,33 @@ function generateQRCode() {
         return;
     }
     
-    // Gerar QR Code
-    QRCode.toCanvas(url, { 
-        width: 300,
-        margin: 2,
-        color: {
-            dark: '#D4AF37',
-            light: '#000000'
-        }
-    }, (error, canvas) => {
-        if (error) {
-            console.error('Erro ao gerar QR Code:', error);
-            alert('Erro ao gerar QR Code: ' + error.message);
-            return;
+    // Criar elemento para o QR Code
+    const qrElement = document.createElement('div');
+    qrCodeContainer.appendChild(qrElement);
+    
+    // Gerar QR Code usando a biblioteca qrcodejs
+    try {
+        new QRCode(qrElement, {
+            text: url,
+            width: 300,
+            height: 300,
+            colorDark: '#D4AF37',
+            colorLight: '#000000',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        // Obter o canvas gerado
+        qrCodeCanvas = qrElement.querySelector('canvas');
+        if (!qrCodeCanvas) {
+            qrCodeCanvas = qrElement.querySelector('img');
         }
         
-        qrCodeCanvas = canvas;
-        qrCodeContainer.appendChild(canvas);
         downloadQrBtn.style.display = 'inline-block';
-    });
+        
+    } catch (error) {
+        console.error('Erro ao gerar QR Code:', error);
+        alert('Erro ao gerar QR Code: ' + error.message);
+    }
 }
 
 /**
