@@ -214,28 +214,32 @@ function generateQRCode() {
     // Limpar container anterior
     qrCodeContainer.innerHTML = '';
     
-    // Usar API de QR Code online (goqr.me)
-    const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&color=D4AF37&bgcolor=000000`;
+    // Verificar se a biblioteca QRCode está carregada
+    if (typeof QRCode === 'undefined') {
+        console.error('Biblioteca QRCode não carregada');
+        alert('Erro ao carregar biblioteca QRCode. Verifique sua conexão.');
+        return;
+    }
     
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = apiUrl;
-    img.alt = 'QR Code';
-    img.style.maxWidth = '100%';
-    
-    img.onload = () => {
-        qrCodeContainer.appendChild(img);
+    // Gerar QR Code usando a biblioteca qrcode
+    QRCode.toCanvas(url, { 
+        width: 300,
+        margin: 2,
+        color: {
+            dark: '#D4AF37',
+            light: '#000000'
+        }
+    }, (error, canvas) => {
+        if (error) {
+            console.error('Erro ao gerar QR Code:', error);
+            alert('Erro ao gerar QR Code: ' + error.message);
+            return;
+        }
         
-        // Armazenar a URL para download direto
-        qrCodeCanvas = img;
-        
+        qrCodeCanvas = canvas;
+        qrCodeContainer.appendChild(canvas);
         downloadQrBtn.style.display = 'inline-block';
-    };
-    
-    img.onerror = () => {
-        console.error('Erro ao carregar QR Code da API');
-        alert('Erro ao gerar QR Code. Tente novamente.');
-    };
+    });
 }
 
 /**
@@ -247,27 +251,13 @@ function downloadQRCode() {
         return;
     }
     
-    // Usar a URL direta da API para download via fetch
-    const url = qrUrlInput.value.trim();
-    const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&color=D4AF37&bgcolor=000000`;
-    
-    fetch(apiUrl)
-        .then(response => response.blob())
-        .then(blob => {
-            const blobUrl = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = 'qrcode-presenca.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(blobUrl);
-        })
-        .catch(error => {
-            console.error('Erro ao baixar QR Code:', error);
-            // Fallback: abrir em nova aba
-            window.open(apiUrl, '_blank');
-        });
+    // Converter canvas para data URL e baixar
+    const link = document.createElement('a');
+    link.download = 'qrcode-presenca.png';
+    link.href = qrCodeCanvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 // ==========================================
