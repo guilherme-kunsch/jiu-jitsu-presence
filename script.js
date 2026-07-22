@@ -214,40 +214,32 @@ function generateQRCode() {
     // Limpar container anterior
     qrCodeContainer.innerHTML = '';
     
-    // Verificar se a biblioteca QRCode está carregada
-    if (typeof QRCode === 'undefined') {
-        console.error('Biblioteca QRCode não carregada');
-        alert('Erro ao carregar biblioteca QRCode. Verifique sua conexão.');
-        return;
-    }
+    // Usar API de QR Code online (goqr.me)
+    const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(url)}&color=D4AF37&bgcolor=000000`;
     
-    // Criar elemento para o QR Code
-    const qrElement = document.createElement('div');
-    qrCodeContainer.appendChild(qrElement);
+    const img = new Image();
+    img.src = apiUrl;
+    img.alt = 'QR Code';
+    img.style.maxWidth = '100%';
     
-    // Gerar QR Code usando a biblioteca qrcodejs
-    try {
-        new QRCode(qrElement, {
-            text: url,
-            width: 300,
-            height: 300,
-            colorDark: '#D4AF37',
-            colorLight: '#000000',
-            correctLevel: QRCode.CorrectLevel.H
-        });
+    img.onload = () => {
+        qrCodeContainer.appendChild(img);
         
-        // Obter o canvas gerado
-        qrCodeCanvas = qrElement.querySelector('canvas');
-        if (!qrCodeCanvas) {
-            qrCodeCanvas = qrElement.querySelector('img');
-        }
+        // Criar canvas para download
+        const canvas = document.createElement('canvas');
+        canvas.width = 300;
+        canvas.height = 300;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, 300, 300);
+        qrCodeCanvas = canvas;
         
         downloadQrBtn.style.display = 'inline-block';
-        
-    } catch (error) {
-        console.error('Erro ao gerar QR Code:', error);
-        alert('Erro ao gerar QR Code: ' + error.message);
-    }
+    };
+    
+    img.onerror = () => {
+        console.error('Erro ao carregar QR Code da API');
+        alert('Erro ao gerar QR Code. Tente novamente.');
+    };
 }
 
 /**
