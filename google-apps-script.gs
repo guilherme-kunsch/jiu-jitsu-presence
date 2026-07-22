@@ -29,6 +29,11 @@ function doGet(e) {
     output.setMimeType(ContentService.MimeType.JSON);
     
     try {
+        // Se e for undefined, retornar erro informativo
+        if (!e || !e.parameter) {
+            return createResponse({ success: false, message: 'Esta função deve ser chamada via requisição HTTP. Use a função test() para testes locais.' });
+        }
+        
         const action = e.parameter.action;
         
         // Verificar qual ação foi solicitada
