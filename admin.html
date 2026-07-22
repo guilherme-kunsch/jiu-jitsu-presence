@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administração - Controle de Presença</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Header -->
+        <div class="admin-header">
+            <h1 class="admin-title">Painel Administrativo</h1>
+            <nav class="admin-nav">
+                <a href="index.html" class="btn">Voltar ao Check-in</a>
+                <button class="btn active" id="refreshBtn">Atualizar Dados</button>
+            </nav>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="loading-spinner"></div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24">
+                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                </svg>
+                <div class="stat-value" id="todayCount">0</div>
+                <div class="stat-label">Presenças Hoje</div>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24">
+                    <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+                </svg>
+                <div class="stat-value" id="monthCount">0</div>
+                <div class="stat-label">Presenças no Mês</div>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <div class="stat-value" id="uniqueStudents">0</div>
+                <div class="stat-label">Alunos Diferentes</div>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24">
+                    <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                </svg>
+                <div class="stat-value" id="lastRecord">--:--</div>
+                <div class="stat-label">Último Registro</div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters-container">
+            <h3 class="chart-title">Filtros</h3>
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label class="filter-label">Pesquisar por Nome</label>
+                    <input type="text" class="form-control" id="searchName" placeholder="Digite o nome...">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Turma</label>
+                    <select class="form-select" id="filterClass">
+                        <option value="">Todas as Turmas</option>
+                        <option value="Infantil">Infantil</option>
+                        <option value="Adulto">Adulto</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Competição">Competição</option>
+                        <option value="Livre">Livre</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Data Inicial</label>
+                    <input type="date" class="form-control" id="startDate">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Data Final</label>
+                    <input type="date" class="form-control" id="endDate">
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">&nbsp;</label>
+                    <button class="btn btn-outline-gold w-100" id="applyFilters">Aplicar Filtros</button>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">&nbsp;</label>
+                    <button class="btn btn-outline-gold w-100" id="clearFilters">Limpar Filtros</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Registros -->
+        <div class="table-container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="chart-title mb-0">Registros de Presença</h3>
+                <button class="btn btn-outline-gold" id="exportCsv">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-2">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Exportar CSV
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover" id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Hora</th>
+                            <th>Nome</th>
+                            <th>Turma</th>
+                            <th>Dia da Semana</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center">Carregando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3 class="chart-title">Presenças por Dia</h3>
+                <canvas id="dailyChart" class="chart-canvas"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">Presenças por Turma</h3>
+                <canvas id="classChart" class="chart-canvas"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">Ranking de Alunos</h3>
+                <canvas id="rankingChart" class="chart-canvas"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">Aulas por Mês</h3>
+                <canvas id="monthlyChart" class="chart-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Erro -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="adminErrorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-danger text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-2">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                </svg>
+                <strong class="me-auto">Erro</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" id="adminErrorMessage">
+                Ocorreu um erro ao carregar os dados.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
