@@ -68,8 +68,8 @@ async function handleSubmit(event) {
     submitBtn.classList.add('loading');
     
     try {
-        // Verificar se o aluno já registrou presença hoje
-        const alreadyRegistered = await checkAttendance(name);
+        // Verificar se o aluno já registrou presença hoje (validação local)
+        const alreadyRegistered = checkAttendanceLocal(name);
         
         if (alreadyRegistered) {
             showWarning();
@@ -79,6 +79,9 @@ async function handleSubmit(event) {
         
         // Registrar presença
         await registerAttendance(name, classType);
+        
+        // Salvar no localStorage para validação futura
+        saveAttendanceLocal(name);
         
         // Mostrar sucesso
         showSuccess();
@@ -108,7 +111,50 @@ function normalizeName(name) {
 }
 
 /**
- * Verifica se o aluno já registrou presença hoje
+ * Verifica se o aluno já registrou presença hoje (validação local usando localStorage)
+ * @param {string} name - Nome do aluno
+ * @returns {boolean} - true se já registrou, false caso contrário
+ */
+function checkAttendanceLocal(name) {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const normalizedName = normalizeName(name);
+        
+        // Buscar check-ins do dia do localStorage
+        const storageKey = 'attendance_' + today;
+        const todayAttendance = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        
+        // Verificar se o nome normalizado já existe
+        return todayAttendance.some(recordName => normalizeName(recordName) === normalizedName);
+        
+    } catch (error) {
+        console.error('Erro ao verificar presença local:', error);
+        // Em caso de erro, permite o registro (fail-safe)
+        return false;
+    }
+}
+
+/**
+ * Salva o check-in no localStorage
+ * @param {string} name - Nome do aluno
+ */
+function saveAttendanceLocal(name) {
+    try {
+        const today = new Date().toISOString().split('T')[0];
+        const storageKey = 'attendance_' + today;
+        const todayAttendance = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        
+        // Adicionar o nome à lista
+        todayAttendance.push(name);
+        localStorage.setItem(storageKey, JSON.stringify(todayAttendance));
+        
+    } catch (error) {
+        console.error('Erro ao salvar presença local:', error);
+    }
+}
+
+/**
+ * Verifica se o aluno já registrou presença hoje (método original - não usado)
  * @param {string} name - Nome do aluno
  * @returns {Promise<boolean>} - true se já registrou, false caso contrário
  */
