@@ -234,10 +234,18 @@ function getAllAttendance() {
                 
                 if (dateValue instanceof Date) {
                     dateString = Utilities.formatDate(dateValue, 'GMT-3', 'yyyy-MM-dd');
+                } else if (typeof dateValue === 'number') {
+                    // Converter número serial do Excel para data
+                    const date = new Date((dateValue - 25569) * 86400 * 1000);
+                    dateString = Utilities.formatDate(date, 'GMT-3', 'yyyy-MM-dd');
                 }
                 
                 if (timeValue instanceof Date) {
                     timeString = Utilities.formatDate(timeValue, 'GMT-3', 'HH:mm');
+                } else if (typeof timeValue === 'number') {
+                    // Converter número serial do Excel para hora
+                    const date = new Date((timeValue - 25569) * 86400 * 1000);
+                    timeString = Utilities.formatDate(date, 'GMT-3', 'HH:mm');
                 }
                 
                 attendanceData.push({

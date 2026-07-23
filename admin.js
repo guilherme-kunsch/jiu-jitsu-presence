@@ -600,16 +600,40 @@ function showError(message) {
  * @returns {string} - Data formatada
  */
 function formatDateDisplay(dateStr) {
+    // Se a data for undefined ou null
+    if (!dateStr) return '--/--/----';
+    
     // Se a data já estiver no formato YYYY-MM-DD, formatar diretamente
-    if (dateStr && dateStr.includes('-')) {
+    if (typeof dateStr === 'string' && dateStr.includes('-')) {
         const parts = dateStr.split('-');
         if (parts.length === 3) {
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            // Verificar se são números válidos
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]);
+            const day = parseInt(parts[2]);
+            
+            // Se o ano for inválido (como 1899), tentar usar timestamp
+            if (year < 1900 || year > 2100) {
+                return '--/--/----';
+            }
+            
+            return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`;
         }
     }
-    // Fallback para o método anterior
-    const date = new Date(dateStr + 'T00:00:00');
-    return date.toLocaleDateString('pt-BR');
+    
+    // Se for um número (timestamp do Excel/Google Sheets)
+    if (typeof dateStr === 'number') {
+        const date = new Date((dateStr - 25569) * 86400 * 1000);
+        return date.toLocaleDateString('pt-BR');
+    }
+    
+    // Se for objeto Date
+    if (dateStr instanceof Date) {
+        return dateStr.toLocaleDateString('pt-BR');
+    }
+    
+    // Fallback
+    return String(dateStr);
 }
 
 /**
