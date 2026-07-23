@@ -178,22 +178,17 @@ function registerAttendance(data) {
         // Obter a planilha
         const sheet = getSheet();
         
-        // Adicionar nova linha
+        // Adicionar nova linha como strings para evitar problemas de formato
         sheet.appendRow([
-            date,           // Coluna A: Data (formato YYYY-MM-DD)
-            time,           // Coluna B: Hora (formato HH:MM)
-            name,           // Coluna C: Nome
-            classType,      // Coluna D: Turma
-            dayOfWeek,      // Coluna E: Dia da Semana
-            month,          // Coluna F: Mês
-            year,           // Coluna G: Ano
-            timestamp       // Coluna H: Timestamp
+            String(date),           // Coluna A: Data (formato YYYY-MM-DD)
+            String(time),           // Coluna B: Hora (formato HH:MM)
+            String(name),           // Coluna C: Nome
+            String(classType),      // Coluna D: Turma
+            String(dayOfWeek),      // Coluna E: Dia da Semana
+            String(month),          // Coluna F: Mês
+            String(year),           // Coluna G: Ano
+            String(timestamp)       // Coluna H: Timestamp
         ]);
-        
-        // Formatar a coluna de data como texto para evitar problema de ano 1899
-        const lastRow = sheet.getLastRow();
-        sheet.getRange(lastRow, 1).setNumberFormat('@');
-        sheet.getRange(lastRow, 2).setNumberFormat('@');
         
         return createResponse({ success: true, message: 'Presença registrada com sucesso' });
         
@@ -229,9 +224,25 @@ function getAllAttendance() {
             
             // Verificar se a linha tem dados
             if (row[0]) { // Se tem data
+                // Converter data e hora para strings para evitar problemas de formato
+                const dateValue = row[0];
+                const timeValue = row[1];
+                
+                // Se for objeto Date do Google Sheets, converter para string
+                let dateString = dateValue;
+                let timeString = timeValue;
+                
+                if (dateValue instanceof Date) {
+                    dateString = Utilities.formatDate(dateValue, 'GMT-3', 'yyyy-MM-dd');
+                }
+                
+                if (timeValue instanceof Date) {
+                    timeString = Utilities.formatDate(timeValue, 'GMT-3', 'HH:mm');
+                }
+                
                 attendanceData.push({
-                    date: row[0],           // Data
-                    time: row[1],           // Hora
+                    date: dateString,           // Data
+                    time: timeString,           // Hora
                     name: row[2],           // Nome
                     classType: row[3],      // Turma
                     dayOfWeek: row[4],      // Dia da Semana
