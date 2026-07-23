@@ -233,7 +233,7 @@ function getAllAttendance() {
             try {
                 const dateObj = new Date(timestamp);
                 dateString = Utilities.formatDate(dateObj, 'GMT-3', 'yyyy-MM-dd');
-                timeString = Utilities.formatDate(dateObj, 'GMT-3', 'HH:mm');
+                timeString = Utilities.formatDate(dateObj, 'GMT-3', 'HH:mm:ss');
             } catch (e) {
                 // Fallback: usar os valores originais das colunas
                 dateString = row[0] || '';

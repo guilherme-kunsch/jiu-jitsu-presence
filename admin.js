@@ -158,7 +158,7 @@ function updateStatistics() {
             return new Date(b.timestamp) - new Date(a.timestamp);
         });
         const lastRecord = sortedByTime[0];
-        lastRecordEl.textContent = lastRecord.time;
+        lastRecordEl.textContent = formatTimeDisplay(lastRecord.time);
     } else {
         lastRecordEl.textContent = '--:--';
     }
@@ -181,7 +181,7 @@ function updateTable() {
     attendanceTableBody.innerHTML = sortedData.map(record => `
         <tr>
             <td style="color: white;">${formatDateDisplay(record.date)}</td>
-            <td style="color: white;">${record.time}</td>
+            <td style="color: white;">${formatTimeDisplay(record.time)}</td>
             <td style="color: white;">${record.name}</td>
             <td><span class="badge" style="background: var(--color-gold); color: var(--color-black);">${record.classType}</span></td>
             <td style="color: white;">${capitalizeFirst(record.dayOfWeek)}</td>
@@ -634,6 +634,52 @@ function formatDateDisplay(dateStr) {
     
     // Fallback
     return String(dateStr);
+}
+
+/**
+ * Formata hora para exibição (remove data 1899-12-31)
+ * @param {string|Date|number} timeValue - Valor da hora
+ * @returns {string} - Hora formatada (HH:mm:ss ou HH:mm)
+ */
+function formatTimeDisplay(timeValue) {
+    if (!timeValue) return '--:--';
+    
+    // Se já for string no formato HH:mm ou HH:mm:ss
+    if (typeof timeValue === 'string') {
+        // Se contiver data (ex: 1899-12-31T01:29:32.000Z), extrair apenas a hora
+        if (timeValue.includes('T') || timeValue.includes('1899')) {
+            try {
+                const date = new Date(timeValue);
+                return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            } catch (e) {
+                // Se falhar, tentar extrair manualmente
+                const match = timeValue.match(/T(\d{2}:\d{2}:\d{2})/);
+                if (match) return match[1];
+                const matchShort = timeValue.match(/T(\d{2}:\d{2})/);
+                if (matchShort) return matchShort[0];
+                return '--:--';
+            }
+        }
+        // Se já estiver no formato correto
+        if (timeValue.match(/^\d{1,2}:\d{2}(:\d{2})?$/)) {
+            return timeValue;
+        }
+        return timeValue;
+    }
+    
+    // Se for número (timestamp do Excel/Google Sheets)
+    if (typeof timeValue === 'number') {
+        const date = new Date((timeValue - 25569) * 86400 * 1000);
+        return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    
+    // Se for objeto Date
+    if (timeValue instanceof Date) {
+        return timeValue.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    
+    // Fallback
+    return String(timeValue);
 }
 
 /**
