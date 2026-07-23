@@ -222,43 +222,34 @@ function getAllAttendance() {
         for (let i = 1; i < data.length; i++) {
             const row = data[i];
             
-            // Verificar se a linha tem dados
-            if (row[0]) { // Se tem data
-                // Converter data e hora para strings para evitar problemas de formato
-                const dateValue = row[0];
-                const timeValue = row[1];
-                
-                // Se for objeto Date do Google Sheets, converter para string
-                let dateString = dateValue;
-                let timeString = timeValue;
-                
-                if (dateValue instanceof Date) {
-                    dateString = Utilities.formatDate(dateValue, 'GMT-3', 'yyyy-MM-dd');
-                } else if (typeof dateValue === 'number') {
-                    // Converter número serial do Excel para data
-                    const date = new Date((dateValue - 25569) * 86400 * 1000);
-                    dateString = Utilities.formatDate(date, 'GMT-3', 'yyyy-MM-dd');
-                }
-                
-                if (timeValue instanceof Date) {
-                    timeString = Utilities.formatDate(timeValue, 'GMT-3', 'HH:mm');
-                } else if (typeof timeValue === 'number') {
-                    // Converter número serial do Excel para hora
-                    const date = new Date((timeValue - 25569) * 86400 * 1000);
-                    timeString = Utilities.formatDate(date, 'GMT-3', 'HH:mm');
-                }
-                
-                attendanceData.push({
-                    date: dateString,           // Data
-                    time: timeString,           // Hora
-                    name: row[2],           // Nome
-                    classType: row[3],      // Turma
-                    dayOfWeek: row[4],      // Dia da Semana
-                    month: row[5],          // Mês
-                    year: row[6],           // Ano
-                    timestamp: row[7]       // Timestamp
-                });
+            // Verificar se a linha tem dados (usar timestamp como referência)
+            const timestamp = row[7];
+            if (!timestamp) continue;
+            
+            // Usar o timestamp para extrair data e hora corretas
+            let dateString = '';
+            let timeString = '';
+            
+            try {
+                const dateObj = new Date(timestamp);
+                dateString = Utilities.formatDate(dateObj, 'GMT-3', 'yyyy-MM-dd');
+                timeString = Utilities.formatDate(dateObj, 'GMT-3', 'HH:mm');
+            } catch (e) {
+                // Fallback: usar os valores originais das colunas
+                dateString = row[0] || '';
+                timeString = row[1] || '';
             }
+            
+            attendanceData.push({
+                date: dateString,           // Data
+                time: timeString,           // Hora
+                name: row[2] || '',         // Nome
+                classType: row[3] || '',    // Turma
+                dayOfWeek: row[4] || '',    // Dia da Semana
+                month: row[5] || '',        // Mês
+                year: row[6] || '',         // Ano
+                timestamp: timestamp        // Timestamp
+            });
         }
         
         return createResponse({ success: true, data: attendanceData });
