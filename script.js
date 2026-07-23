@@ -193,7 +193,7 @@ async function registerAttendance(name, classType) {
             classType: classType,
             timestamp: now.toISOString(),
             date: now.toISOString().split('T')[0],
-            time: now.toLocaleTimeString('pt-BR'),
+            time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             dayOfWeek: now.toLocaleDateString('pt-BR', { weekday: 'long' }),
             month: now.toLocaleDateString('pt-BR', { month: 'long' }),
             year: now.getFullYear()

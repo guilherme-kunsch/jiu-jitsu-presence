@@ -180,11 +180,11 @@ function updateTable() {
     
     attendanceTableBody.innerHTML = sortedData.map(record => `
         <tr>
-            <td>${formatDateDisplay(record.date)}</td>
-            <td>${record.time}</td>
-            <td>${record.name}</td>
+            <td style="color: white;">${formatDateDisplay(record.date)}</td>
+            <td style="color: white;">${record.time}</td>
+            <td style="color: white;">${record.name}</td>
             <td><span class="badge" style="background: var(--color-gold); color: var(--color-black);">${record.classType}</span></td>
-            <td>${capitalizeFirst(record.dayOfWeek)}</td>
+            <td style="color: white;">${capitalizeFirst(record.dayOfWeek)}</td>
         </tr>
     `).join('');
 }
@@ -600,6 +600,14 @@ function showError(message) {
  * @returns {string} - Data formatada
  */
 function formatDateDisplay(dateStr) {
+    // Se a data já estiver no formato YYYY-MM-DD, formatar diretamente
+    if (dateStr && dateStr.includes('-')) {
+        const parts = dateStr.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+    }
+    // Fallback para o método anterior
     const date = new Date(dateStr + 'T00:00:00');
     return date.toLocaleDateString('pt-BR');
 }

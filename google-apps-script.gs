@@ -180,8 +180,8 @@ function registerAttendance(data) {
         
         // Adicionar nova linha
         sheet.appendRow([
-            date,           // Coluna A: Data
-            time,           // Coluna B: Hora
+            date,           // Coluna A: Data (formato YYYY-MM-DD)
+            time,           // Coluna B: Hora (formato HH:MM)
             name,           // Coluna C: Nome
             classType,      // Coluna D: Turma
             dayOfWeek,      // Coluna E: Dia da Semana
@@ -189,6 +189,11 @@ function registerAttendance(data) {
             year,           // Coluna G: Ano
             timestamp       // Coluna H: Timestamp
         ]);
+        
+        // Formatar a coluna de data como texto para evitar problema de ano 1899
+        const lastRow = sheet.getLastRow();
+        sheet.getRange(lastRow, 1).setNumberFormat('@');
+        sheet.getRange(lastRow, 2).setNumberFormat('@');
         
         return createResponse({ success: true, message: 'Presença registrada com sucesso' });
         
