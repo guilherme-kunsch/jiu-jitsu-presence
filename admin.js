@@ -69,16 +69,16 @@ async function loadData() {
     showLoading(true);
     
     try {
-        const response = await fetch(`${APPS_SCRIPT_URL}?action=getAllAttendance`, {
-            method: 'GET',
-            mode: 'cors'
-        });
+        // Usar JSONP para contornar CORS
+        const data = await loadWithJSONP();
         
-        const data = await response.json();
+        console.log('Dados recebidos da API:', data);
         
         if (data.success && data.data) {
             allAttendanceData = data.data;
             filteredData = [...allAttendanceData];
+            console.log('Total de registros carregados:', allAttendanceData.length);
+            console.log('Amostra de dados:', allAttendanceData.slice(0, 3));
             updateUI();
         } else {
             throw new Error(data.message || 'Erro ao carregar dados');
@@ -91,6 +91,43 @@ async function loadData() {
     } finally {
         showLoading(false);
     }
+}
+
+/**
+ * Carrega dados usando JSONP para contornar CORS
+ */
+function loadWithJSONP() {
+    return new Promise((resolve, reject) => {
+        const callbackName = 'jsonpCallback_' + Date.now();
+        const script = document.createElement('script');
+        
+        // Definir callback global
+        window[callbackName] = function(data) {
+            delete window[callbackName];
+            document.body.removeChild(script);
+            resolve(data);
+        };
+        
+        // Configurar timeout
+        const timeout = setTimeout(() => {
+            delete window[callbackName];
+            document.body.removeChild(script);
+            reject(new Error('Timeout ao carregar dados'));
+        }, 10000);
+        
+        // Criar URL com callback
+        const url = `${APPS_SCRIPT_URL}?action=getAllAttendance&callback=${callbackName}`;
+        
+        script.src = url;
+        script.onerror = () => {
+            clearTimeout(timeout);
+            delete window[callbackName];
+            document.body.removeChild(script);
+            reject(new Error('Erro ao carregar script'));
+        };
+        
+        document.body.appendChild(script);
+    });
 }
 
 // ==========================================
@@ -117,6 +154,9 @@ function updateStatistics() {
     const day = String(now.getDate()).padStart(2, '0');
     const today = `${year}-${month}-${day}`;
     
+    console.log('Data de hoje (para comparação):', today);
+    console.log('Total de registros filtrados:', filteredData.length);
+    
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     
@@ -124,8 +164,11 @@ function updateStatistics() {
     const todayRecords = filteredData.filter(record => {
         // Garantir que record.date seja string e comparar
         const recordDate = String(record.date);
+        console.log('Comparando:', recordDate, '===', today, '=>', recordDate === today);
         return recordDate === today;
     });
+    
+    console.log('Registros de hoje encontrados:', todayRecords.length);
     todayCountEl.textContent = todayRecords.length;
     
     // Presenças no mês

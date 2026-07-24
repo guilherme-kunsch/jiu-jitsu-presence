@@ -24,10 +24,6 @@ const SHEET_NAME = 'Presenças';
 // ==========================================
 
 function doGet(e) {
-    // Configurar CORS
-    const output = ContentService.createTextOutput();
-    output.setMimeType(ContentService.MimeType.JSON);
-    
     try {
         // Se e for undefined, retornar erro informativo
         if (!e || !e.parameter) {
@@ -35,15 +31,27 @@ function doGet(e) {
         }
         
         const action = e.parameter.action;
+        const callback = e.parameter.callback;
+        
+        let result;
         
         // Verificar qual ação foi solicitada
         if (action === 'checkAttendance') {
-            return checkAttendance(e.parameter);
+            result = checkAttendance(e.parameter);
         } else if (action === 'getAllAttendance') {
-            return getAllAttendance();
+            result = getAllAttendance();
         } else {
-            return createResponse({ success: false, message: 'Ação não reconhecida' });
+            result = createResponse({ success: false, message: 'Ação não reconhecida' });
         }
+        
+        // Se houver callback, retornar como JSONP
+        if (callback) {
+            const json = result.getContent();
+            return ContentService.createTextOutput(callback + '(' + json + ')')
+                .setMimeType(ContentService.MimeType.JAVASCRIPT);
+        }
+        
+        return result;
         
     } catch (error) {
         console.error('Erro no doGet:', error);
