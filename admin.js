@@ -139,11 +139,15 @@ function updateStatistics() {
     const localDate = new Date(now.getTime() - offset);
     const today = localDate.toISOString().split('T')[0];
     
+    console.log('Data local para comparação (admin):', today);
+    console.log('Primeiros 5 registros:', filteredData.slice(0, 5).map(r => ({ date: r.date, name: r.name })));
+    
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     
     // Presenças hoje
     const todayRecords = filteredData.filter(record => record.date === today);
+    console.log('Registros de hoje:', todayRecords.length);
     todayCountEl.textContent = todayRecords.length;
     
     // Presenças no mês

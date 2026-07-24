@@ -193,6 +193,8 @@ async function registerAttendance(name, classType) {
         const localDate = new Date(now.getTime() - offset);
         const dateStr = localDate.toISOString().split('T')[0];
         
+        console.log('Data local sendo enviada:', dateStr);
+        
         const data = {
             action: 'registerAttendance',
             name: name,
