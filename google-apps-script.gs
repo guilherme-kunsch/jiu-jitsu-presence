@@ -170,10 +170,6 @@ function registerAttendance(data) {
         const month = data.month;
         const year = data.year;
         
-        // Log para debug
-        console.log('Data recebida:', date);
-        console.log('Timestamp recebido:', timestamp);
-        
         // Validar campos obrigatórios
         if (!name || !classType) {
             return createResponse({ success: false, message: 'Campos obrigatórios faltando' });
@@ -193,9 +189,6 @@ function registerAttendance(data) {
             String(year),           // Coluna G: Ano
             String(timestamp)       // Coluna H: Timestamp
         ]);
-        
-        // Log de sucesso
-        console.log('Presença registrada com data:', date);
         
         return createResponse({ success: true, message: 'Presença registrada com sucesso' });
         
@@ -229,33 +222,24 @@ function getAllAttendance() {
         for (let i = 1; i < data.length; i++) {
             const row = data[i];
             
-            // Verificar se a linha tem dados (usar timestamp como referência)
-            const timestamp = row[7];
-            if (!timestamp) continue;
+            // Verificar se a linha tem dados (usar nome como referência)
+            const name = row[2];
+            if (!name) continue;
             
-            // Usar o timestamp para extrair data e hora corretas
-            let dateString = '';
-            let timeString = '';
-            
-            try {
-                const dateObj = new Date(timestamp);
-                dateString = Utilities.formatDate(dateObj, 'GMT-3', 'yyyy-MM-dd');
-                timeString = Utilities.formatDate(dateObj, 'GMT-3', 'HH:mm:ss');
-            } catch (e) {
-                // Fallback: usar os valores originais das colunas
-                dateString = row[0] || '';
-                timeString = row[1] || '';
-            }
+            // Usar os valores das colunas diretamente (já são strings)
+            // A data já está no formato correto YYYY-MM-DD enviada pelo frontend
+            const dateString = row[0] || '';
+            const timeString = row[1] || '';
             
             attendanceData.push({
-                date: dateString,           // Data
+                date: dateString,           // Data (formato YYYY-MM-DD)
                 time: timeString,           // Hora
                 name: row[2] || '',         // Nome
                 classType: row[3] || '',    // Turma
                 dayOfWeek: row[4] || '',    // Dia da Semana
                 month: row[5] || '',        // Mês
                 year: row[6] || '',         // Ano
-                timestamp: timestamp        // Timestamp
+                timestamp: row[7] || ''     // Timestamp
             });
         }
         
