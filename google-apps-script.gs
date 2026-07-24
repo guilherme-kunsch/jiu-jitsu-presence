@@ -218,36 +218,40 @@ function registerAttendance(data) {
 
 function getAllAttendance() {
     try {
-        // Obter a planilha
         const sheet = getSheet();
-        
-        // Obter todos os dados
         const data = sheet.getDataRange().getValues();
-        
-        // Converter para array de objetos (pular cabeçalho)
         const attendanceData = [];
         
         for (let i = 1; i < data.length; i++) {
             const row = data[i];
-            
-            // Verificar se a linha tem dados (usar nome como referência)
             const name = row[2];
             if (!name) continue;
             
-            // Usar os valores das colunas diretamente (já são strings)
-            // A data já está no formato correto YYYY-MM-DD enviada pelo frontend
-            const dateString = row[0] || '';
-            const timeString = row[1] || '';
+            // Normalizar data, seja ela string ou objeto Date
+            let dateString = row[0] || '';
+            if (dateString instanceof Date) {
+                dateString = Utilities.formatDate(dateString, 'America/Sao_Paulo', 'yyyy-MM-dd');
+            } else {
+                dateString = String(dateString);
+            }
+            
+            // Normalizar hora da mesma forma
+            let timeString = row[1] || '';
+            if (timeString instanceof Date) {
+                timeString = Utilities.formatDate(timeString, 'America/Sao_Paulo', 'HH:mm:ss');
+            } else {
+                timeString = String(timeString);
+            }
             
             attendanceData.push({
-                date: dateString,           // Data (formato YYYY-MM-DD)
-                time: timeString,           // Hora
-                name: row[2] || '',         // Nome
-                classType: row[3] || '',    // Turma
-                dayOfWeek: row[4] || '',    // Dia da Semana
-                month: row[5] || '',        // Mês
-                year: row[6] || '',         // Ano
-                timestamp: row[7] || ''     // Timestamp
+                date: dateString,
+                time: timeString,
+                name: row[2] || '',
+                classType: row[3] || '',
+                dayOfWeek: row[4] || '',
+                month: row[5] || '',
+                year: row[6] || '',
+                timestamp: row[7] || ''
             });
         }
         
