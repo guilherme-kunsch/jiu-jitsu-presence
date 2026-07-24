@@ -170,6 +170,10 @@ function registerAttendance(data) {
         const month = data.month;
         const year = data.year;
         
+        // Log para debug
+        console.log('Data recebida:', date);
+        console.log('Timestamp recebido:', timestamp);
+        
         // Validar campos obrigatórios
         if (!name || !classType) {
             return createResponse({ success: false, message: 'Campos obrigatórios faltando' });
@@ -189,6 +193,9 @@ function registerAttendance(data) {
             String(year),           // Coluna G: Ano
             String(timestamp)       // Coluna H: Timestamp
         ]);
+        
+        // Log de sucesso
+        console.log('Presença registrada com data:', date);
         
         return createResponse({ success: true, message: 'Presença registrada com sucesso' });
         
