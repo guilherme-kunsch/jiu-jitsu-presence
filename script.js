@@ -188,15 +188,11 @@ async function registerAttendance(name, classType) {
     try {
         const now = new Date();
         
-        // Obter data local no formato YYYY-MM-DD (considerando fuso horário)
-        const offset = now.getTimezoneOffset() * 60000;
-        const localDate = new Date(now.getTime() - offset);
-        const dateStr = localDate.toISOString().split('T')[0];
-        
-        console.log('=== CHECK-IN ===');
-        console.log('Nome:', name);
-        console.log('Data local sendo enviada:', dateStr);
-        console.log('Hora local:', now.toLocaleTimeString('pt-BR'));
+        // Obter data local no formato YYYY-MM-DD de forma simples
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
         
         const data = {
             action: 'registerAttendance',

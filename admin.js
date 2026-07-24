@@ -69,7 +69,6 @@ async function loadData() {
     showLoading(true);
     
     try {
-        console.log('=== CARREGANDO DADOS ===');
         const response = await fetch(`${APPS_SCRIPT_URL}?action=getAllAttendance`, {
             method: 'GET',
             mode: 'no-cors'
@@ -80,12 +79,9 @@ async function loadData() {
         // Por enquanto, vamos tentar usar uma URL com callback
         const data = await fetchWithFallback();
         
-        console.log('Dados recebidos:', data);
-        
         if (data.success && data.data) {
             allAttendanceData = data.data;
             filteredData = [...allAttendanceData];
-            console.log('Total de registros carregados:', allAttendanceData.length);
             updateUI();
         } else {
             throw new Error(data.message || 'Erro ao carregar dados');
@@ -137,24 +133,22 @@ function updateUI() {
  * Atualiza as estatísticas
  */
 function updateStatistics() {
-    // Obter data local no formato YYYY-MM-DD (considerando fuso horário)
+    // Obter data local no formato YYYY-MM-DD de forma simples (igual ao script.js)
     const now = new Date();
-    const offset = now.getTimezoneOffset() * 60000;
-    const localDate = new Date(now.getTime() - offset);
-    const today = localDate.toISOString().split('T')[0];
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const today = `${year}-${month}-${day}`;
     
-    console.log('=== ADMIN - ESTATÍSTICAS ===');
-    console.log('Data local para comparação:', today);
-    console.log('Total de registros carregados:', filteredData.length);
-    console.log('Primeiros 5 registros:', filteredData.slice(0, 5).map(r => ({ date: r.date, name: r.name, time: r.time })));
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
     
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    
-    // Presenças hoje
-    const todayRecords = filteredData.filter(record => record.date === today);
-    console.log('Registros que batem com a data de hoje:', todayRecords.length);
-    console.log('Registros de hoje:', todayRecords.map(r => ({ name: r.name, date: r.date, time: r.time })));
+    // Presenças hoje - comparar string direta
+    const todayRecords = filteredData.filter(record => {
+        // Garantir que record.date seja string e comparar
+        const recordDate = String(record.date);
+        return recordDate === today;
+    });
     todayCountEl.textContent = todayRecords.length;
     
     // Presenças no mês
