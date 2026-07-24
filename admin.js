@@ -69,6 +69,7 @@ async function loadData() {
     showLoading(true);
     
     try {
+        console.log('=== CARREGANDO DADOS ===');
         const response = await fetch(`${APPS_SCRIPT_URL}?action=getAllAttendance`, {
             method: 'GET',
             mode: 'no-cors'
@@ -79,9 +80,12 @@ async function loadData() {
         // Por enquanto, vamos tentar usar uma URL com callback
         const data = await fetchWithFallback();
         
+        console.log('Dados recebidos:', data);
+        
         if (data.success && data.data) {
             allAttendanceData = data.data;
             filteredData = [...allAttendanceData];
+            console.log('Total de registros carregados:', allAttendanceData.length);
             updateUI();
         } else {
             throw new Error(data.message || 'Erro ao carregar dados');
