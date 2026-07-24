@@ -161,12 +161,16 @@ function updateStatistics() {
     const currentYear = now.getFullYear();
     
     // Presenças hoje - comparar string direta
-    const todayRecords = filteredData.filter(record => {
-        // Garantir que record.date seja string e comparar
-        const recordDate = String(record.date);
-        console.log('Comparando:', recordDate, '===', today, '=>', recordDate === today);
-        return recordDate === today;
-    });
+const todayRecords = filteredData.filter(record => {
+    let recordDate = String(record.date);
+
+    // Se vier como timestamp completo (ISO), pega só a parte da data
+    if (recordDate.includes('T')) {
+        recordDate = recordDate.split('T')[0];
+    }
+
+    return recordDate === today;
+});
     
     console.log('Registros de hoje encontrados:', todayRecords.length);
     todayCountEl.textContent = todayRecords.length;
