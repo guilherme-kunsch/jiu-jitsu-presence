@@ -71,13 +71,10 @@ async function loadData() {
     try {
         const response = await fetch(`${APPS_SCRIPT_URL}?action=getAllAttendance`, {
             method: 'GET',
-            mode: 'no-cors'
+            mode: 'cors'
         });
         
-        // Com no-cors, não podemos ler a resposta JSON diretamente
-        // Precisamos usar uma abordagem diferente ou JSONP
-        // Por enquanto, vamos tentar usar uma URL com callback
-        const data = await fetchWithFallback();
+        const data = await response.json();
         
         if (data.success && data.data) {
             allAttendanceData = data.data;
@@ -93,26 +90,6 @@ async function loadData() {
         attendanceTableBody.innerHTML = '<tr><td colspan="5" class="text-center">Erro ao carregar dados</td></tr>';
     } finally {
         showLoading(false);
-    }
-}
-
-/**
- * Função alternativa para carregar dados usando uma abordagem diferente
- */
-async function fetchWithFallback() {
-    try {
-        // Tentar usar a API diretamente com JSONP ou outra abordagem
-        const response = await fetch(`${APPS_SCRIPT_URL}?action=getAllAttendance&callback=handleData`, {
-            method: 'GET',
-            mode: 'cors'
-        });
-        
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Erro no fetch alternativo:', error);
-        // Retornar dados vazios em caso de erro
-        return { success: false, data: [] };
     }
 }
 
