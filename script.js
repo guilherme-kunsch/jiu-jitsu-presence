@@ -193,6 +193,11 @@ async function registerAttendance(name, classType) {
         const localDate = new Date(now.getTime() - offset);
         const dateStr = localDate.toISOString().split('T')[0];
         
+        console.log('=== CHECK-IN ===');
+        console.log('Nome:', name);
+        console.log('Data local sendo enviada:', dateStr);
+        console.log('Hora local:', now.toLocaleTimeString('pt-BR'));
+        
         const data = {
             action: 'registerAttendance',
             name: name,
