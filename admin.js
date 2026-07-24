@@ -72,13 +72,9 @@ async function loadData() {
         // Usar JSONP para contornar CORS
         const data = await loadWithJSONP();
         
-        console.log('Dados recebidos da API:', data);
-        
         if (data.success && data.data) {
             allAttendanceData = data.data;
             filteredData = [...allAttendanceData];
-            console.log('Total de registros carregados:', allAttendanceData.length);
-            console.log('Amostra de dados:', allAttendanceData.slice(0, 3));
             updateUI();
         } else {
             throw new Error(data.message || 'Erro ao carregar dados');
@@ -154,30 +150,23 @@ function updateStatistics() {
     const day = String(now.getDate()).padStart(2, '0');
     const today = `${year}-${month}-${day}`;
     
-    console.log('Data de hoje (para comparação):', today);
-    console.log('Total de registros filtrados:', filteredData.length);
-    
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     
-    // Presenças hoje - comparar string direta
-const todayRecords = filteredData.filter(record => {
-    let recordDate = String(record.date);
-
-    // Se vier como timestamp completo (ISO), pega só a parte da data
-    if (recordDate.includes('T')) {
-        recordDate = recordDate.split('T')[0];
-    }
-
-    return recordDate === today;
-});
+    // Presenças hoje - comparar apenas a parte da data (YYYY-MM-DD)
+    const todayRecords = filteredData.filter(record => {
+        // Extrair apenas a parte da data (YYYY-MM-DD) do registro
+        const recordDate = String(record.date).substring(0, 10);
+        return recordDate === today;
+    });
     
-    console.log('Registros de hoje encontrados:', todayRecords.length);
     todayCountEl.textContent = todayRecords.length;
     
     // Presenças no mês
     const monthRecords = filteredData.filter(record => {
-        const recordDate = new Date(record.date);
+        // Extrair apenas a parte da data para criar objeto Date
+        const recordDateStr = String(record.date).substring(0, 10);
+        const recordDate = new Date(recordDateStr);
         return recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear;
     });
     monthCountEl.textContent = monthRecords.length;
@@ -527,12 +516,14 @@ function applyFilters() {
             return false;
         }
         
-        // Filtro por período
-        if (startDate && record.date < startDate) {
+        // Filtro por período - extrair apenas a parte da data (YYYY-MM-DD)
+        const recordDateStr = String(record.date).substring(0, 10);
+        
+        if (startDate && recordDateStr < startDate) {
             return false;
         }
         
-        if (endDate && record.date > endDate) {
+        if (endDate && recordDateStr > endDate) {
             return false;
         }
         
