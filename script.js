@@ -187,12 +187,18 @@ async function checkAttendance(name) {
 async function registerAttendance(name, classType) {
     try {
         const now = new Date();
+        
+        // Obter data local no formato YYYY-MM-DD (considerando fuso horário)
+        const offset = now.getTimezoneOffset() * 60000;
+        const localDate = new Date(now.getTime() - offset);
+        const dateStr = localDate.toISOString().split('T')[0];
+        
         const data = {
             action: 'registerAttendance',
             name: name,
             classType: classType,
             timestamp: now.toISOString(),
-            date: now.toISOString().split('T')[0],
+            date: dateStr,
             time: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
             dayOfWeek: now.toLocaleDateString('pt-BR', { weekday: 'long' }),
             month: now.toLocaleDateString('pt-BR', { month: 'long' }),

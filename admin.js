@@ -133,7 +133,12 @@ function updateUI() {
  * Atualiza as estatísticas
  */
 function updateStatistics() {
-    const today = new Date().toISOString().split('T')[0];
+    // Obter data local no formato YYYY-MM-DD (considerando fuso horário)
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    const localDate = new Date(now.getTime() - offset);
+    const today = localDate.toISOString().split('T')[0];
+    
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     
